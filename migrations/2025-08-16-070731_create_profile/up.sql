@@ -2,8 +2,8 @@
 create type maturity_rating as ENUM ('G', 'PG', 'PG-13/12', 'R/15', 'NC-17/18', 'TV-MA');
 
 create table profile (
-    id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    id uuid PRIMARY KEY,
+    user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     name VARCHAR(255) NOT NULL DEFAULT 'NAME',
     maturity_rating_max maturity_rating NOT NULL DEFAULT 'NC-17/18',
     avatar_url VARCHAR(255),
