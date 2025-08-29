@@ -4,11 +4,14 @@ use diesel_derive_enum::DbEnum;
 use serde::{ Serialize, Deserialize };
 use uuid::Uuid;
 
-#[derive(DbEnum, Debug, Serialize, Deserialize)]
+#[derive(DbEnum, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[ExistingTypePath = "crate::schema::sql_types::UserStatus"]
 pub enum UserStatus {
-    ACTIVE, 
-    BANNED, 
+    #[db_rename = "ACTIVE"]
+    ACTIVE,
+    #[db_rename = "BANNED"]
+    BANNED,
+    #[db_rename = "INACTIVE"]
     INACTIVE
 }
 

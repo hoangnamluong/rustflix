@@ -2,7 +2,7 @@
 create type maturity_rating as ENUM ('G', 'PG', 'PG-13/12', 'R/15', 'NC-17/18', 'TV-MA');
 
 create table profile (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid (),
     user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     name VARCHAR(255) NOT NULL DEFAULT 'NAME',
     maturity_rating_max maturity_rating NOT NULL DEFAULT 'NC-17/18',

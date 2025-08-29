@@ -1,10 +1,18 @@
-use actix_web::{get, post, web, Error, HttpResponse, Responder};
-use crate::config::db_config::DatabasePool;
+use actix_web::{ web, Error, error, HttpResponse };
 use serde_json::json;
+use crate::{app_state::AppState, models::users};
 
-#[get("/users")]
-pub async fn get_all(pool: web::Data<DatabasePool>) -> impl Responder {
-    // let mut conn = pool.get().map_err(|_| actix_web::error::ErrorInternalServerError("Failed to get DB connection"));    
+pub fn config (cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::resource("/users")
+            .route(web::get().to(get_all))
+    );
+}
 
-    HttpResponse::Ok().json(json!({ "status": "SUCCESS", "message": "" }))
+async fn get_all(pool: web::Data<AppState>) -> Result<HttpResponse, Error> {
+    let mut conn = pool.db.get().map_err(|_| error::ErrorInternalServerError("Failed to get DB connection"))?;
+
+    let result = users::Users::get_all(&mut conn).map_err(|err| error::ErrorInternalServerError(err))?;
+
+    Ok(HttpResponse::Ok().json(json!({ "status": "SUCCESS", "message": "", "content": result })))
 }

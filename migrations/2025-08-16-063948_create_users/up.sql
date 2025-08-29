@@ -2,7 +2,7 @@
 create type user_status as ENUM ('ACTIVE', 'BANNED', 'INACTIVE');
 
 create table users (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid (),
     email VARCHAR(255) UNIQUE NOT NULL,
     password varchar(255) NOT NULL,
     status user_status NOT NULL DEFAULT 'ACTIVE',
