@@ -1,8 +1,10 @@
 use chrono::NaiveDateTime;
-use diesel::{ Queryable };
+use diesel::{ prelude::Insertable, Queryable };
 use diesel_derive_enum::DbEnum;
 use serde::{ Serialize, Deserialize };
 use uuid::Uuid;
+
+use crate::schema::users;
 
 #[derive(DbEnum, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[ExistingTypePath = "crate::schema::sql_types::UserStatus"]
@@ -23,4 +25,11 @@ pub struct Users {
     pub status: UserStatus,
     pub created_at: NaiveDateTime,
     pub country_id: Option<i32>
+}
+
+#[derive(Insertable, Deserialize)]
+#[diesel(table_name = users)]
+pub struct UsersDTO {
+    pub email: String,
+    pub password: String,
 }
