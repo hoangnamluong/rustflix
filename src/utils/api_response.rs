@@ -1,3 +1,4 @@
+use actix_web::{http::StatusCode, HttpResponse, Responder};
 use serde::{Serialize};
 use serde_json::json;
 
@@ -9,34 +10,49 @@ pub enum ResponseStatus {
 }
 
 #[derive(Serialize)]
-pub struct ApiResponse<'a, T> {
+pub struct ApiResponse {
     pub status: ResponseStatus,
-    pub message: &'a str,
-    pub content: T,
+    pub message: String,
+    pub content: Option<serde_json::Value>,
 }
 
-impl<'a, T: Serialize> ApiResponse<'a, T> {
-    pub fn success(content: T) -> serde_json::Value {
-        json!(ApiResponse {
+impl Responder for ApiResponse {
+    type Body = actix_web::body::BoxBody;
+    
+    fn respond_to(self, req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
+        let status_code = match self.status {
+            ResponseStatus::SUCCESS => StatusCode::OK,
+            ResponseStatus::ERROR => StatusCode::INTERNAL_SERVER_ERROR,
+            ResponseStatus::CONFLICT => StatusCode::CONFLICT,
+            _ => StatusCode::INTERNAL_SERVER_ERROR
+        };
+
+        HttpResponse::build(status_code).json(self)
+    }
+}
+
+impl ApiResponse {
+    pub fn success(content: serde_json::Value) -> ApiResponse {
+        ApiResponse {
             status: ResponseStatus::SUCCESS,
-            message: "",
-            content
-        })
+            message: "".to_string(),
+            content: Some(content)
+        }
     }
 
-    pub fn error(message: &str) -> serde_json::Value {
-        json!(ApiResponse {
+    pub fn error(message: &str) -> ApiResponse {
+        ApiResponse {
             status: ResponseStatus::ERROR,
-            message: message,
-            content: "",
-        })
+            message: message.to_string(),
+            content: None,
+        }
     }
 
-    pub fn conflict(message: &str) -> serde_json::Value {
-        json!(ApiResponse {
+    pub fn conflict(message: &str) -> ApiResponse {
+        ApiResponse {
             status: ResponseStatus::ERROR,
-            message: message,
-            content: "",
-        })
+            message: message.to_string(),
+            content: None,
+        }
     }
 }
