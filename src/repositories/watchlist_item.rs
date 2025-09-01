@@ -2,7 +2,7 @@ use diesel::dsl::{delete, insert_into, update};
 use diesel::query_dsl::methods::{FilterDsl, FindDsl};
 use diesel::{ExpressionMethods, QueryResult, RunQueryDsl};
 use crate::config::db_config::DatabaseConn;
-use crate::models::watchlist_item::{WatchlistItem, WatchlistItemCreateDTO, WatchlistItemUpdateDTO};
+use crate::models::watchlist_item::{WatchlistItem, WatchlistItemCreateDTO};
 use crate::schema::watchlist_item::{self, dsl};
 
 impl WatchlistItem {
@@ -22,15 +22,18 @@ impl WatchlistItem {
         insert_into(watchlist_item::dsl::watchlist_item).values(item).execute(conn)
     }
 
-    //Flag for review
-    pub fn update(conn: &mut DatabaseConn, user_id: i32, title_id: i32, item: &WatchlistItemUpdateDTO) -> QueryResult<usize> {
-        update(watchlist_item::table.filter(dsl::user_id.eq(user_id))
-            .filter(dsl::title_id.eq(title_id)))
-            .set(item)
-            .execute(conn)
-    }
+    /*
+        No need to update
+        => whenever user presses/clicks add to watchlist or remove from watchlist button 
+        => create new watchlist row or delete existing watchlist row
+     */
+    // pub fn update(conn: &mut DatabaseConn, user_id: i32, title_id: i32, item: &WatchlistItemUpdateDTO) -> QueryResult<usize> {
+    //     update(watchlist_item::table.filter(dsl::user_id.eq(user_id))
+    //         .filter(dsl::title_id.eq(title_id)))
+    //         .set(item)
+    //         .execute(conn)
+    // }
 
-    //Flag for review
     pub fn delete(conn: &mut DatabaseConn, user_id: i32, title_id: i32) -> QueryResult<usize> {
         delete(watchlist_item::table.filter(dsl::user_id.eq(user_id))
             .filter(dsl::title_id.eq(title_id)))

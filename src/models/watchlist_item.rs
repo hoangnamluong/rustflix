@@ -19,8 +19,8 @@ pub struct WatchlistItemCreateDTO {
     pub added_at: Option<NaiveDateTime>
 }
 
-#[derive(AsChangeset, Deserialize)]
-#[diesel(table_name = watchlist_item)]
-pub struct WatchlistItemUpdateDTO {
-    pub added_at: Option<NaiveDateTime>
-}
+// #[derive(AsChangeset, Deserialize)]
+// #[diesel(table_name = watchlist_item)]
+// pub struct WatchlistItemUpdateDTO {
+//     pub added_at: Option<NaiveDateTime>
+// }

@@ -2,7 +2,7 @@ use diesel::dsl::{delete, insert_into, update};
 use diesel::query_dsl::methods::{FilterDsl, FindDsl};
 use diesel::{ExpressionMethods, QueryResult, RunQueryDsl};
 use crate::config::db_config::DatabaseConn;
-use crate::models::users::{Users, UsersCreateDTO, UsersUpdateDTO};
+use crate::models::users::{UserStatus, Users, UsersCreateDTO, UsersUpdateDTO};
 use crate::schema::users::{self, dsl};
 
 impl Users {
@@ -23,6 +23,6 @@ impl Users {
     }
 
     pub fn delete(conn: &mut DatabaseConn, id: i32) -> QueryResult<usize> {
-        delete(dsl::users.find(id)).execute(conn)
+         update(dsl::users.find(id)).set(dsl::status.eq(UserStatus::INACTIVE)).execute(conn)
     }
 }

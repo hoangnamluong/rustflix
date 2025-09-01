@@ -5,12 +5,22 @@ use rustflix::config::{
     db_config, 
     log_config
 };
-use rustflix::{
-    handlers::{
-        users
-    }
-};
 use rustflix::app_state::AppState;
+use rustflix::handlers::{
+    asset,
+    casting_role,
+    casting,
+    filmmaker,
+    genre,
+    playback_progress,
+    profile,
+    rating,
+    title,
+    users, 
+    video_file,
+    viewing_session,
+    watchlist_item
+};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -31,6 +41,18 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/api/v1")
                     .configure(users::config)
+                    .configure(profile::config)
+                    .configure(title::config)
+                    .configure(genre::config)
+                    .configure(filmmaker::config)
+                    .configure(casting::config)
+                    .configure(asset::config)
+                    .configure(video_file::config)
+                    .configure(viewing_session::config)
+                    .configure(watchlist_item::config)
+                    .configure(rating::config)
+                    .configure(casting_role::config)
+                    .configure(playback_progress::config)
             )
             .wrap(cors)
             .wrap(Logger::default())

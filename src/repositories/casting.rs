@@ -26,7 +26,6 @@ impl Casting {
         insert_into(casting::dsl::casting).values(casting).execute(conn)
     }
 
-    //Flag for review
     pub fn update(conn: &mut DatabaseConn, title_id: i32, filmmaker_id: i32, role_id: i32, casting: &CastingUpdateDTO) -> QueryResult<usize> {
         update(casting::table.filter(dsl::title_id.eq(title_id))
             .filter(dsl::filmmaker_id.eq(filmmaker_id))
@@ -35,7 +34,6 @@ impl Casting {
             .execute(conn)
     }
 
-    //Flag for review
     pub fn delete(conn: &mut DatabaseConn, title_id: i32, filmmaker_id: i32, role_id: i32) -> QueryResult<usize> {
         delete(casting::table.filter(dsl::title_id.eq(title_id))
             .filter(dsl::filmmaker_id.eq(filmmaker_id))

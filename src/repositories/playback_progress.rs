@@ -29,7 +29,6 @@ impl PlaybackProgress {
         insert_into(playback_progress::dsl::playback_progress).values(progress).execute(conn)
     }
 
-    //Flag for review
     pub fn update(conn: &mut DatabaseConn, user_id: i32, asset_id: i32, progress: &PlaybackProgressUpdateDTO) -> QueryResult<usize> {
         update(playback_progress::table
             .filter(dsl::user_id.eq(user_id))
@@ -38,7 +37,6 @@ impl PlaybackProgress {
             .execute(conn)
     }
 
-    //Flag for review
     pub fn delete(conn: &mut DatabaseConn, user_id: i32, asset_id: i32) -> QueryResult<usize> {
         delete(playback_progress::table
             .filter(dsl::user_id.eq(user_id))
