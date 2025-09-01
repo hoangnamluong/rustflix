@@ -1,22 +1,27 @@
-use diesel::{ prelude::Insertable, Queryable };
+use diesel::{ prelude::{Insertable, AsChangeset}, Queryable };
 use serde::{ Serialize, Deserialize };
-use uuid::Uuid;
 
 use crate::schema::casting;
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct Casting {
-    pub title_id: Uuid,
-    pub filmmaker_id: Uuid,
-    pub role_id: Uuid,
+    pub title_id: i32,
+    pub filmmaker_id: i32,
+    pub role_id: i32,
     pub character_name: Option<String>
 }
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = casting)]
-pub struct CastingDTO {
-    pub title_id: Uuid,
-    pub filmmaker_id: Uuid,
-    pub role_id: Uuid,
+pub struct CastingCreateDTO {
+    pub title_id: i32,
+    pub filmmaker_id: i32,
+    pub role_id: i32,
+    pub character_name: Option<String>
+}
+
+#[derive(AsChangeset, Deserialize)]
+#[diesel(table_name = casting)]
+pub struct CastingUpdateDTO {
     pub character_name: Option<String>
 }

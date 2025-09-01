@@ -19,8 +19,8 @@ diesel::table! {
     use super::sql_types::StreamingProtocol;
 
     asset (id) {
-        id -> Uuid,
-        title_id -> Nullable<Uuid>,
+        id -> Int4,
+        title_id -> Nullable<Int4>,
         manifest_url -> StreamingProtocol,
         subtitle_locales -> Nullable<Int4>,
         audio_locales -> Nullable<Int4>,
@@ -29,9 +29,9 @@ diesel::table! {
 
 diesel::table! {
     casting (title_id, filmmaker_id, role_id) {
-        title_id -> Uuid,
-        filmmaker_id -> Uuid,
-        role_id -> Uuid,
+        title_id -> Int4,
+        filmmaker_id -> Int4,
+        role_id -> Int4,
         #[max_length = 255]
         character_name -> Nullable<Varchar>,
     }
@@ -39,7 +39,7 @@ diesel::table! {
 
 diesel::table! {
     casting_role (id) {
-        id -> Uuid,
+        id -> Int4,
         #[max_length = 255]
         name -> Varchar,
     }
@@ -63,7 +63,7 @@ diesel::table! {
 
 diesel::table! {
     filmmaker (id) {
-        id -> Uuid,
+        id -> Int4,
         #[max_length = 255]
         name -> Varchar,
         bio -> Nullable<Text>,
@@ -73,7 +73,7 @@ diesel::table! {
 
 diesel::table! {
     genre (id) {
-        id -> Uuid,
+        id -> Int4,
         #[max_length = 255]
         name -> Varchar,
     }
@@ -91,8 +91,8 @@ diesel::table! {
 
 diesel::table! {
     playback_progress (user_id, asset_id) {
-        user_id -> Uuid,
-        asset_id -> Uuid,
+        user_id -> Int4,
+        asset_id -> Int4,
         position_ms -> Int4,
         updated_at -> Nullable<Timestamp>,
     }
@@ -103,8 +103,8 @@ diesel::table! {
     use super::sql_types::MaturityRating;
 
     profile (id) {
-        id -> Uuid,
-        user_id -> Uuid,
+        id -> Int4,
+        user_id -> Int4,
         #[max_length = 255]
         name -> Varchar,
         maturity_rating_max -> MaturityRating,
@@ -116,9 +116,9 @@ diesel::table! {
 
 diesel::table! {
     rating (id) {
-        id -> Uuid,
-        user_id -> Nullable<Uuid>,
-        title_id -> Nullable<Uuid>,
+        id -> Int4,
+        user_id -> Nullable<Int4>,
+        title_id -> Nullable<Int4>,
         score -> Int2,
         rated_at -> Nullable<Timestamp>,
     }
@@ -129,7 +129,7 @@ diesel::table! {
     use super::sql_types::MaturityRating;
 
     title (id) {
-        id -> Uuid,
+        id -> Int4,
         #[max_length = 255]
         name -> Varchar,
         synopsis -> Text,
@@ -147,8 +147,8 @@ diesel::table! {
 
 diesel::table! {
     title_genre (title_id, genre_id) {
-        title_id -> Uuid,
-        genre_id -> Uuid,
+        title_id -> Int4,
+        genre_id -> Int4,
     }
 }
 
@@ -157,7 +157,7 @@ diesel::table! {
     use super::sql_types::UserStatus;
 
     users (id) {
-        id -> Uuid,
+        id -> Int4,
         #[max_length = 255]
         email -> Varchar,
         #[max_length = 255]
@@ -170,8 +170,8 @@ diesel::table! {
 
 diesel::table! {
     video_file (id) {
-        id -> Uuid,
-        asset_id -> Nullable<Uuid>,
+        id -> Int4,
+        asset_id -> Nullable<Int4>,
         codec -> Text,
         container -> Text,
         width -> Int4,
@@ -182,9 +182,9 @@ diesel::table! {
 
 diesel::table! {
     viewing_session (id) {
-        id -> Uuid,
-        user_id -> Nullable<Uuid>,
-        asset_id -> Nullable<Uuid>,
+        id -> Int4,
+        user_id -> Nullable<Int4>,
+        asset_id -> Nullable<Int4>,
         started_at -> Nullable<Timestamp>,
         ended_at -> Nullable<Timestamp>,
     }
@@ -192,8 +192,8 @@ diesel::table! {
 
 diesel::table! {
     watchlist_item (user_id, title_id) {
-        user_id -> Uuid,
-        title_id -> Uuid,
+        user_id -> Int4,
+        title_id -> Int4,
         added_at -> Nullable<Timestamp>,
     }
 }

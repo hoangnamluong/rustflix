@@ -1,7 +1,6 @@
-use diesel::{ prelude::Insertable, Queryable };
+use diesel::{ prelude::{Insertable, AsChangeset}, Queryable };
 use diesel_derive_enum::DbEnum;
 use serde::{ Serialize, Deserialize };
-use uuid::Uuid;
 
 use crate::schema::asset;
 
@@ -16,8 +15,8 @@ pub enum StreamingProtocol {
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct Asset {
-    pub id: Uuid,
-    pub title_id: Option<Uuid>,
+    pub id: i32,
+    pub title_id: Option<i32>,
     pub manifest_url: StreamingProtocol,
     pub subtitle_locales: Option<i32>,
     pub audio_locales: Option<i32>
@@ -25,9 +24,18 @@ pub struct Asset {
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = asset)]
-pub struct AssetDTO {
-    pub title_id: Option<Uuid>,
+pub struct AssetCreateDTO {
+    pub title_id: Option<i32>,
     pub manifest_url: StreamingProtocol,
+    pub subtitle_locales: Option<i32>,
+    pub audio_locales: Option<i32>
+}
+
+#[derive(AsChangeset, Deserialize)]
+#[diesel(table_name = asset)]
+pub struct AssetUpdateDTO {
+    pub title_id: Option<i32>,
+    pub manifest_url: Option<StreamingProtocol>,
     pub subtitle_locales: Option<i32>,
     pub audio_locales: Option<i32>
 }

@@ -1,7 +1,6 @@
-use diesel::{ prelude::Insertable, Queryable };
+use diesel::{ prelude::{Insertable, AsChangeset}, Queryable };
 use diesel_derive_enum::DbEnum;
 use serde::{ Serialize, Deserialize };
-use uuid::Uuid;
 
 use crate::schema::profile;
 
@@ -22,8 +21,8 @@ pub enum MaturityRating {
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct Profile {
-    pub id: Uuid,
-    pub user_id: Uuid,
+    pub id: i32,
+    pub user_id: i32,
     pub name: String,
     pub maturity_rating_max: MaturityRating,
     pub avatar_url: Option<String>,
@@ -32,10 +31,19 @@ pub struct Profile {
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = profile)]
-pub struct ProfileDTO {
-    pub user_id: Uuid,
+pub struct ProfileCreateDTO {
+    pub user_id: i32,
     pub name: String,
     pub maturity_rating_max: MaturityRating,
     pub avatar_url: Option<String>,
     pub language: i32
+}
+
+#[derive(AsChangeset, Deserialize)]
+#[diesel(table_name = profile)]
+pub struct ProfileUpdateDTO {
+    pub name: Option<String>,
+    pub maturity_rating_max: Option<MaturityRating>,
+    pub avatar_url: Option<String>,
+    pub language: Option<i32>
 }

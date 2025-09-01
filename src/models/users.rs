@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use diesel::{ prelude::Insertable, Queryable };
+use diesel::{ prelude::{Insertable, AsChangeset}, Queryable };
 use diesel_derive_enum::DbEnum;
 use serde::{ Serialize, Deserialize };
 use uuid::Uuid;
@@ -19,7 +19,7 @@ pub enum UserStatus {
 
 #[derive(Queryable, Serialize, Deserialize)]
 pub struct Users {
-    pub id: Uuid,
+    pub id: i32,
     pub email: String,
     pub password: String,
     pub status: UserStatus,
@@ -29,7 +29,14 @@ pub struct Users {
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = users)]
-pub struct UsersDTO {
+pub struct UsersCreateDTO {
     pub email: String,
     pub password: String,
+}
+
+#[derive(AsChangeset, Serialize)]
+#[diesel(table_name = users)]
+pub struct UsersUpdateDTO {
+    pub email: Option<String>,
+    pub password: Option<String>
 }

@@ -1,15 +1,28 @@
-use diesel::dsl::insert_into;
-use diesel::{Insertable, QueryResult, RunQueryDsl};
+use diesel::dsl::{delete, insert_into, update};
+use diesel::query_dsl::methods::{FilterDsl, FindDsl};
+use diesel::{ExpressionMethods, QueryResult, RunQueryDsl};
 use crate::config::db_config::DatabaseConn;
-use crate::models::users::{Users, UsersDTO};
-use crate::schema::users;
+use crate::models::users::{Users, UsersCreateDTO, UsersUpdateDTO};
+use crate::schema::users::{self, dsl};
 
 impl Users {
     pub fn get_all(conn: &mut DatabaseConn) -> QueryResult<Vec<Self>> {
         users::table.load::<Users>(conn)
     }
 
-    pub fn create(conn: &mut DatabaseConn, user: &UsersDTO) -> QueryResult<usize> {
+    pub fn get_by_id(conn:& mut DatabaseConn, id: i32) -> QueryResult<Self> {
+        users::table.filter(dsl::id.eq(id)).first(conn)
+    } 
+
+    pub fn create(conn: &mut DatabaseConn, user: &UsersCreateDTO) -> QueryResult<usize> {
         insert_into(users::dsl::users).values(user).execute(conn)
+    }
+
+    pub fn update(conn: &mut DatabaseConn, id: i32, user: &UsersUpdateDTO) -> QueryResult<usize> {
+        update(dsl::users.find(id)).set(user).execute(conn)
+    }
+
+    pub fn delete(conn: &mut DatabaseConn, id: i32) -> QueryResult<usize> {
+        delete(dsl::users.find(id)).execute(conn)
     }
 }
