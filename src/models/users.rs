@@ -34,7 +34,7 @@ pub struct UsersCreateDTO {
     pub password: String,
 }
 
-#[derive(AsChangeset, Serialize)]
+#[derive(AsChangeset, Serialize, Deserialize)]
 #[diesel(table_name = users)]
 pub struct UsersUpdateDTO {
     pub email: Option<String>,

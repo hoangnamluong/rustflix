@@ -11,12 +11,13 @@ impl WatchlistItem {
     }
 
     pub fn get_by_user(conn: &mut DatabaseConn, user_id: i32) -> QueryResult<Vec<Self>> {
-        watchlist_item::table.filter(dsl::user_id.eq(user_id)).load::<WatchlistItem>(conn)
+        watchlist_item::table.filter(dsl::user_id.eq(user_id)).load(conn)
     }
 
-    pub fn get_by_title(conn: &mut DatabaseConn, title_id: i32) -> QueryResult<Vec<Self>> {
-        watchlist_item::table.filter(dsl::title_id.eq(title_id)).load::<WatchlistItem>(conn)
-    }
+    // User only see their watchlist
+    // pub fn get_by_title(conn: &mut DatabaseConn, title_id: i32) -> QueryResult<Vec<Self>> {
+    //     watchlist_item::table.filter(dsl::title_id.eq(title_id)).load(conn)
+    // }
 
     pub fn create(conn: &mut DatabaseConn, item: &WatchlistItemCreateDTO) -> QueryResult<usize> {
         insert_into(watchlist_item::dsl::watchlist_item).values(item).execute(conn)

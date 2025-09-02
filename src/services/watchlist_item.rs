@@ -14,14 +14,24 @@ pub async fn get_all(mut conn: DatabaseConn) -> RepoResult<Vec<WatchlistItem>> {
     .and_then(|result| result.map_err(ErrorInternalServerError))
 }
 
-pub async fn get_by_title(mut conn: DatabaseConn, title_id: i32) -> RepoResult<Vec<WatchlistItem>> {
+pub async fn get_by_user(mut conn: DatabaseConn, user_id: i32) -> RepoResult<Vec<WatchlistItem>> {
     web::block(move || {        
-        WatchlistItem::get_by_title(&mut conn, title_id)
+        WatchlistItem::get_by_user(&mut conn, user_id)
     })
     .await
     .map_err(ErrorInternalServerError)
     .and_then(|result| result.map_err(ErrorInternalServerError))
 }
+
+// User only see their watchlist
+// pub async fn get_by_title(mut conn: DatabaseConn, title_id: i32) -> RepoResult<Vec<WatchlistItem>> {
+//     web::block(move || {        
+//         WatchlistItem::get_by_title(&mut conn, title_id)
+//     })
+//     .await
+//     .map_err(ErrorInternalServerError)
+//     .and_then(|result| result.map_err(ErrorInternalServerError))
+// }
 
 pub async fn create(mut conn: DatabaseConn, item: WatchlistItemCreateDTO) -> RepoResult<usize> {
     web::block(move || {        

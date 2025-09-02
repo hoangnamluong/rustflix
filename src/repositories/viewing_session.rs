@@ -14,12 +14,20 @@ impl ViewingSession {
         viewing_session::table.filter(dsl::id.eq(id)).first(conn)
     }
 
-    pub fn get_by_user(conn: &mut DatabaseConn, user_id: i32) -> QueryResult<Vec<Self>> {
-        viewing_session::table.filter(dsl::user_id.eq(user_id)).load::<ViewingSession>(conn)
-    }
+    // Viewing Sessions need to be filter with user and asset
+    // pub fn get_by_user(conn: &mut DatabaseConn, user_id: i32) -> QueryResult<Vec<Self>> {
+    //     viewing_session::table.filter(dsl::user_id.eq(user_id)).load(conn)
+    // }
 
-    pub fn get_by_asset(conn: &mut DatabaseConn, asset_id: i32) -> QueryResult<Vec<Self>> {
-        viewing_session::table.filter(dsl::asset_id.eq(asset_id)).load::<ViewingSession>(conn)
+    // pub fn get_by_asset(conn: &mut DatabaseConn, asset_id: i32) -> QueryResult<Vec<Self>> {
+    //     viewing_session::table.filter(dsl::asset_id.eq(asset_id)).load(conn)
+    // }
+
+    pub fn get_by_user_and_asset(conn: &mut DatabaseConn, user_id: i32, asset_id: i32) -> QueryResult<Self> {
+        viewing_session::table
+            .filter(dsl::user_id.eq(user_id))
+            .filter(dsl::asset_id.eq(asset_id))
+            .first(conn)
     }
 
     pub fn create(conn: &mut DatabaseConn, session: &ViewingSessionCreateDTO) -> QueryResult<usize> {

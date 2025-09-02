@@ -23,6 +23,15 @@ pub async fn get_by_id(mut conn: DatabaseConn, id: i32) -> RepoResult<VideoFile>
     .and_then(|result| result.map_err(ErrorInternalServerError))
 }
 
+pub async fn get_by_asset(mut conn: DatabaseConn, asset_id: i32) -> RepoResult<Vec<VideoFile>> {
+    web::block(move || {        
+        VideoFile::get_by_asset(&mut conn, asset_id)
+    })
+    .await
+    .map_err(ErrorInternalServerError)
+    .and_then(|result| result.map_err(ErrorInternalServerError))
+}
+
 pub async fn create(mut conn: DatabaseConn, video_file: VideoFileCreateDTO) -> RepoResult<usize> {
     web::block(move || {        
         VideoFile::create(&mut conn, &video_file)

@@ -2,8 +2,7 @@ use actix_web::{ web, Responder };
 use serde_json::json;
 use crate::{
     app_state::AppState,
-    config::db_config::DatabaseConn,
-    models::video_file::{self, VideoFileCreateDTO},
+    models::video_file::{VideoFileCreateDTO, VideoFileUpdateDTO},
     utils::api_response::ApiResponse
 };
 
@@ -12,41 +11,95 @@ pub fn config(cfg: &mut web::ServiceConfig) {
         web::resource("/video-files")
             .route(web::get().to(get_all))
             .route(web::post().to(create))
+    )
+    .service(
+        web::resource("/video-files/{id}")
+            .route(web::get().to(get_by_id))
+            .route(web::patch().to(update))
+            .route(web::delete().to(delete))
+    )
+    .service(
+        web::resource("/video-files/asset/{asset_id}")
+            .route(web::get().to(get_by_asset))
     );
 }
 
 async fn get_all(pool: web::Data<AppState>) -> impl Responder {
-    let mut conn: DatabaseConn = match pool.db.get() {
+    let conn = match pool.db.get() {
         Ok(conn) => conn,
         Err(_) => return ApiResponse::error("Failed to connect to database"),
     };
 
-    let result = web::block(move || video_file::VideoFile::get_all(&mut conn))
-        .await
-        .map_err(|err| format!("Error executing database query: {}", err))
-        .and_then(|r| r.map_err(|e| e.to_string()));
-
-    match result {
+    match crate::services::video_file::get_all(conn).await {
         Ok(files) => ApiResponse::success(json!(files)),
-        Err(error_message) => ApiResponse::error(&error_message),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
+
+async fn get_by_id(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let id = path.into_inner();
+    match crate::services::video_file::get_by_id(conn, id).await {
+        Ok(file) => ApiResponse::success(json!(file)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
+
+async fn get_by_asset(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let asset_id = path.into_inner();
+    match crate::services::video_file::get_by_asset(conn, asset_id).await {
+        Ok(files) => ApiResponse::success(json!(files)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
     }
 }
 
 async fn create(pool: web::Data<AppState>, file: web::Json<VideoFileCreateDTO>) -> impl Responder {
-    let mut conn = match pool.db.get() {
+    let conn = match pool.db.get() {
         Ok(conn) => conn,
         Err(_) => return ApiResponse::error("Failed to connect to database"),
     };
 
-    let result = web::block(move || {
-        video_file::VideoFile::create(&mut conn, &file)
-    })
-    .await
-    .map_err(|err| format!("Error executing database query: {}", err))
-    .and_then(|r| r.map_err(|e| e.to_string()));
+    match crate::services::video_file::create(conn, file.into_inner()).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
 
-    match result {
-        Ok(content) => ApiResponse::success(json!(content)),
-        Err(err) => ApiResponse::error(&err)
+async fn update(
+    pool: web::Data<AppState>, 
+    path: web::Path<i32>,
+    file: web::Json<VideoFileUpdateDTO>
+) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let id = path.into_inner();
+    match crate::services::video_file::update(conn, id, file.into_inner()).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
+
+async fn delete(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let id = path.into_inner();
+    match crate::services::video_file::delete(conn, id).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
     }
 }

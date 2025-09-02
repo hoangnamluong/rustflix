@@ -14,9 +14,26 @@ pub async fn get_all(mut conn: DatabaseConn) -> RepoResult<Vec<Rating>> {
     .and_then(|result| result.map_err(ErrorInternalServerError))
 }
 
+pub async fn get_by_id(mut conn: DatabaseConn, id: i32) -> RepoResult<Rating> {
+    web::block(move || {        
+        Rating::get_by_id(&mut conn, id)
+    })
+    .await
+    .map_err(ErrorInternalServerError)
+    .and_then(|result| result.map_err(ErrorInternalServerError))
+}
+
 pub async fn get_by_title(mut conn: DatabaseConn, title_id: i32) -> RepoResult<Vec<Rating>> {
     web::block(move || {        
         Rating::get_by_title(&mut conn, title_id)
+    })
+    .await
+    .map_err(ErrorInternalServerError)
+    .and_then(|result| result.map_err(ErrorInternalServerError))
+}
+pub async fn get_by_user_and_title(mut conn: DatabaseConn, user_id: i32, title_id: i32) -> RepoResult<Vec<Rating>> {
+    web::block(move || {
+        Rating::get_by_user_and_title(&mut conn, user_id, title_id)
     })
     .await
     .map_err(ErrorInternalServerError)

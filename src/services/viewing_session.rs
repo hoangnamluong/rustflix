@@ -23,6 +23,15 @@ pub async fn get_by_id(mut conn: DatabaseConn, id: i32) -> RepoResult<ViewingSes
     .and_then(|result| result.map_err(ErrorInternalServerError))
 }
 
+pub async fn get_by_user_and_asset(mut conn: DatabaseConn, user_id: i32, asset_id: i32) -> RepoResult<ViewingSession> {
+    web::block(move || {        
+        ViewingSession::get_by_user_and_asset(&mut conn, user_id, asset_id)
+    })
+    .await
+    .map_err(ErrorInternalServerError)
+    .and_then(|result| result.map_err(ErrorInternalServerError))
+}
+
 pub async fn create(mut conn: DatabaseConn, session: ViewingSessionCreateDTO) -> RepoResult<usize> {
     web::block(move || {        
         ViewingSession::create(&mut conn, &session)

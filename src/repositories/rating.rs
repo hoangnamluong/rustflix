@@ -14,12 +14,19 @@ impl Rating {
         rating::table.filter(dsl::id.eq(id)).first(conn)
     }
 
-    pub fn get_by_user(conn: &mut DatabaseConn, user_id: i32) -> QueryResult<Vec<Self>> {
-        rating::table.filter(dsl::user_id.eq(user_id)).load::<Rating>(conn)
-    }
+    // pub fn get_by_user(conn: &mut DatabaseConn, user_id: i32) -> QueryResult<Vec<Self>> {
+    //     rating::table.filter(dsl::user_id.eq(user_id)).load::<Rating>(conn)
+    // }
 
     pub fn get_by_title(conn: &mut DatabaseConn, title_id: i32) -> QueryResult<Vec<Self>> {
-        rating::table.filter(dsl::title_id.eq(title_id)).load::<Rating>(conn)
+        rating::table.filter(dsl::title_id.eq(title_id)).load(conn)
+    }
+
+    pub fn get_by_user_and_title(conn: &mut DatabaseConn, user_id: i32, title_id: i32) -> QueryResult<Vec<Self>> {
+        rating::table
+            .filter(dsl::user_id.eq(user_id))
+            .filter(dsl::title_id.eq(title_id))
+            .load(conn)
     }
 
     pub fn create(conn: &mut DatabaseConn, rating: &RatingCreateDTO) -> QueryResult<usize> {

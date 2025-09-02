@@ -2,8 +2,7 @@ use actix_web::{ web, Responder };
 use serde_json::json;
 use crate::{
     app_state::AppState,
-    config::db_config::DatabaseConn,
-    models::filmmaker::{self, FilmmakerCreateDTO},
+    models::filmmaker::{FilmmakerCreateDTO, FilmmakerUpdateDTO},
     utils::api_response::ApiResponse
 };
 
@@ -12,41 +11,78 @@ pub fn config(cfg: &mut web::ServiceConfig) {
         web::resource("/filmmakers")
             .route(web::get().to(get_all))
             .route(web::post().to(create))
+    )
+    .service(
+        web::resource("/filmmakers/{id}")
+            .route(web::get().to(get_by_id))
+            .route(web::patch().to(update))
+            .route(web::delete().to(delete))
     );
 }
 
 async fn get_all(pool: web::Data<AppState>) -> impl Responder {
-    let mut conn: DatabaseConn = match pool.db.get() {
+    let conn = match pool.db.get() {
         Ok(conn) => conn,
         Err(_) => return ApiResponse::error("Failed to connect to database"),
     };
 
-    let result = web::block(move || filmmaker::Filmmaker::get_all(&mut conn))
-        .await
-        .map_err(|err| format!("Error executing database query: {}", err))
-        .and_then(|r| r.map_err(|e| e.to_string()));
-
-    match result {
+    match crate::services::filmmaker::get_all(conn).await {
         Ok(filmmakers) => ApiResponse::success(json!(filmmakers)),
-        Err(error_message) => ApiResponse::error(&error_message),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
+
+async fn get_by_id(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let id = path.into_inner();
+    match crate::services::filmmaker::get_by_id(conn, id).await {
+        Ok(filmmaker) => ApiResponse::success(json!(filmmaker)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
     }
 }
 
 async fn create(pool: web::Data<AppState>, filmmaker: web::Json<FilmmakerCreateDTO>) -> impl Responder {
-    let mut conn = match pool.db.get() {
+    let conn = match pool.db.get() {
         Ok(conn) => conn,
         Err(_) => return ApiResponse::error("Failed to connect to database"),
     };
 
-    let result = web::block(move || {
-        filmmaker::Filmmaker::create(&mut conn, &filmmaker)
-    })
-    .await
-    .map_err(|err| format!("Error executing database query: {}", err))
-    .and_then(|r| r.map_err(|e| e.to_string()));
+    match crate::services::filmmaker::create(conn, filmmaker.into_inner()).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
 
-    match result {
-        Ok(content) => ApiResponse::success(json!(content)),
-        Err(err) => ApiResponse::error(&err)
+async fn update(
+    pool: web::Data<AppState>,
+    path: web::Path<i32>,
+    filmmaker: web::Json<FilmmakerUpdateDTO>
+) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let id = path.into_inner();
+    match crate::services::filmmaker::update(conn, id, filmmaker.into_inner()).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
+
+async fn delete(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let id = path.into_inner();
+    match crate::services::filmmaker::delete(conn, id).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
     }
 }

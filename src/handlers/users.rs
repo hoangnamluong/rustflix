@@ -1,54 +1,88 @@
-use actix_web::{ error, web, Responder };
+use actix_web::{ web, Responder };
 use serde_json::json;
-use crate::{app_state::AppState, config::db_config::DatabaseConn, models::users::{self, UsersCreateDTO, UsersUpdateDTO}, utils::api_response::ApiResponse};
+use crate::{
+    app_state::AppState,
+    models::users::{UsersCreateDTO, UsersUpdateDTO},
+    utils::api_response::ApiResponse
+};
 
-pub fn config (cfg: &mut web::ServiceConfig) {
+pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/users")
             .route(web::get().to(get_all))
             .route(web::post().to(create))
+    )
+    .service(
+        web::resource("/users/{id}")
+            .route(web::get().to(get_by_id))
+            .route(web::patch().to(update))
+            .route(web::delete().to(delete))
     );
 }
 
 async fn get_all(pool: web::Data<AppState>) -> impl Responder {
-    // Get database connection from pool
-    let mut conn: DatabaseConn = match pool.db.get() {
+    let conn = match pool.db.get() {
         Ok(conn) => conn,
-        Err(err) => return ApiResponse::error("Failed to connect to database"),
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
     };
 
-    // Execute database query in a separate thread
-    let result = web::block(move || users::Users::get_all(&mut conn))
-        .await
-        .map_err(|err| format!("Error executing database query: {}", err))
-        .and_then(|r| r.map_err(|e| e.to_string()));
-
-    // Return API response based on result
-    match result {
+    match crate::services::users::get_all(conn).await {
         Ok(users) => ApiResponse::success(json!(users)),
-        Err(error_message) => ApiResponse::error(&error_message),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
+
+async fn get_by_id(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let user_id = path.into_inner();
+    match crate::services::users::get_by_id(conn, user_id).await {
+        Ok(user) => ApiResponse::success(json!(user)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
     }
 }
 
 async fn create(pool: web::Data<AppState>, user: web::Json<UsersCreateDTO>) -> impl Responder {
-    let mut conn = match pool.db.get() {
+    let conn = match pool.db.get() {
         Ok(conn) => conn,
-        Err(err) => return ApiResponse::error(&err.to_string()),
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
     };
 
-    let result = web::block(move || {
-        users::Users::create(&mut conn, &user)
-    })
-    .await
-    .map_err(|err| format!("Error executing database query: {}", err))
-    .and_then(|r| r.map_err(|e| e.to_string()));
-
-    match result {
-        Ok(content) => ApiResponse::success(json!(content)),
-        Err(err) => ApiResponse::error(&err.to_string())
+    match crate::services::users::create(conn, user.into_inner()).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
     }
 }
 
-async fn update(pool: web::Data<AppState>, user: web::Json<UsersUpdateDTO>) {
-    
+async fn update(
+    pool: web::Data<AppState>,
+    path: web::Path<i32>,
+    user: web::Json<UsersUpdateDTO>
+) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let user_id = path.into_inner();
+    match crate::services::users::update(conn, user_id, user.into_inner()).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
+}
+
+async fn delete(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Responder {
+    let conn = match pool.db.get() {
+        Ok(conn) => conn,
+        Err(_) => return ApiResponse::error("Failed to connect to database"),
+    };
+
+    let user_id = path.into_inner();
+    match crate::services::users::delete(conn, user_id).await {
+        Ok(result) => ApiResponse::success(json!(result)),
+        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+    }
 }
