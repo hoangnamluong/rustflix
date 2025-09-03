@@ -16,21 +16,8 @@ impl Users {
         users::table.filter(dsl::id.eq(id)).first(conn)
     } 
 
-    pub fn create(conn: &mut DatabaseConn, user: &UsersCreateDTO) -> QueryResult<usize> {
-        conn.transaction::<usize, diesel::result::Error, _>(|conn| {
-            let user: Users = insert_into(users::dsl::users).values(user).get_result(conn)?;
-            let profile: Profile = insert_into(profile::dsl::profile)
-                .values(ProfileCreateDTO {
-                    user_id: user.id,
-                    name: "Username".to_string(),
-                    maturity_rating_max: MaturityRating::PG13,
-                    language: 1,
-                    avatar_url: None
-                })
-                .get_result(conn)?;
-
-            Ok(1)
-        })
+    pub fn create(conn: &mut DatabaseConn, user: &UsersCreateDTO) -> QueryResult<Users> {
+        insert_into(users::dsl::users).values(user).get_result(conn)
     }
 
     pub fn update(conn: &mut DatabaseConn, id: i32, user: &UsersUpdateDTO) -> QueryResult<usize> {

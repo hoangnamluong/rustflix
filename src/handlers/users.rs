@@ -10,7 +10,7 @@ pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/users")
             .route(web::get().to(get_all))
-            .route(web::post().to(create))
+            // .route(web::post().to(create))
     )
     .service(
         web::resource("/users/{id}")
@@ -45,17 +45,18 @@ async fn get_by_id(pool: web::Data<AppState>, path: web::Path<i32>) -> impl Resp
     }
 }
 
-async fn create(pool: web::Data<AppState>, user: web::Json<UsersCreateDTO>) -> impl Responder {
-    let conn = match pool.db.get() {
-        Ok(conn) => conn,
-        Err(_) => return ApiResponse::error("Failed to connect to database"),
-    };
+// User is created through register
+// async fn create(pool: web::Data<AppState>, user: web::Json<UsersCreateDTO>) -> impl Responder {
+//     let conn = match pool.db.get() {
+//         Ok(conn) => conn,
+//         Err(_) => return ApiResponse::error("Failed to connect to database"),
+//     };
 
-    match crate::services::users::create(conn, user.into_inner()).await {
-        Ok(result) => ApiResponse::success(json!(result)),
-        Err(e) => ApiResponse::error(&format!("Error: {}", e)),
-    }
-}
+//     match crate::services::users::create(conn, user.into_inner()).await {
+//         Ok(result) => ApiResponse::success(json!(result)),
+//         Err(e) => ApiResponse::error(&format!("Error: {}", e)),
+//     }
+// }
 
 async fn update(
     pool: web::Data<AppState>,

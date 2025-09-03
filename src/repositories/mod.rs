@@ -11,3 +11,4 @@ pub mod video_file;
 pub mod viewing_session;
 pub mod watchlist_item;
 pub mod playback_progress;
+pub mod auth;

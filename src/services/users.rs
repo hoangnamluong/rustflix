@@ -23,14 +23,15 @@ pub async fn get_by_id(mut conn: DatabaseConn, id: i32) -> RepoResult<Users> {
     .and_then(|result| result.map_err(ErrorInternalServerError))
 }
 
-pub async fn create(mut conn: DatabaseConn, user: UsersCreateDTO) -> RepoResult<usize> {
-    web::block(move || {        
-        Users::create(&mut conn, &user)
-    })
-    .await
-    .map_err(ErrorInternalServerError)
-    .and_then(|result| result.map_err(ErrorInternalServerError))
-}
+// User is created through register
+// pub async fn create(mut conn: DatabaseConn, user: UsersCreateDTO) -> RepoResult<usize> {
+//     web::block(move || {        
+//         Users::create(&mut conn, &user)
+//     })
+//     .await
+//     .map_err(ErrorInternalServerError)
+//     .and_then(|result| result.map_err(ErrorInternalServerError))
+// }
 
 pub async fn update(mut conn: DatabaseConn, id: i32, user: UsersUpdateDTO) -> RepoResult<usize> {
     web::block(move || {        

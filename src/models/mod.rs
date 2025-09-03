@@ -11,3 +11,4 @@ pub mod casting;
 pub mod rating;
 pub mod video_file;
 pub mod watchlist_item;
+pub mod auth;

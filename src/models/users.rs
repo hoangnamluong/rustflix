@@ -32,6 +32,7 @@ pub struct Users {
 pub struct UsersCreateDTO {
     pub email: String,
     pub password: String,
+    pub country_id: Option<i32>
 }
 
 #[derive(AsChangeset, Serialize, Deserialize)]

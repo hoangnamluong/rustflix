@@ -18,8 +18,8 @@ impl Profile {
         profile::table.filter(dsl::user_id.eq(user_id)).load::<Profile>(conn)
     }
 
-    pub fn create(conn: &mut DatabaseConn, profile: &ProfileCreateDTO) -> QueryResult<usize> {
-        insert_into(profile::dsl::profile).values(profile).execute(conn)
+    pub fn create(conn: &mut DatabaseConn, profile: &ProfileCreateDTO) -> QueryResult<Profile> {
+        insert_into(profile::dsl::profile).values(profile).get_result(conn)
     }
 
     pub fn update(conn: &mut DatabaseConn, id: i32, profile: &ProfileUpdateDTO) -> QueryResult<usize> {

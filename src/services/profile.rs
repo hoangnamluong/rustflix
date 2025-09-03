@@ -32,14 +32,15 @@ pub async fn get_by_user_id(mut conn: DatabaseConn, user_id: i32) -> RepoResult<
     .and_then(|result| result.map_err(ErrorInternalServerError))
 }
 
-pub async fn create(mut conn: DatabaseConn, profile: ProfileCreateDTO) -> RepoResult<usize> {
-    web::block(move || {        
-        Profile::create(&mut conn, &profile)
-    })
-    .await
-    .map_err(ErrorInternalServerError)
-    .and_then(|result| result.map_err(ErrorInternalServerError))
-}
+// Profile is created when user register
+// pub async fn create(mut conn: DatabaseConn, profile: ProfileCreateDTO) -> RepoResult<usize> {
+//     web::block(move || {        
+//         Profile::create(&mut conn, &profile)
+//     })
+//     .await
+//     .map_err(ErrorInternalServerError)
+//     .and_then(|result| result.map_err(ErrorInternalServerError))
+// }
 
 pub async fn update(mut conn: DatabaseConn, id: i32, profile: ProfileUpdateDTO) -> RepoResult<usize> {
     web::block(move || {        
